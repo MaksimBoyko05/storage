@@ -1,0 +1,193 @@
+#include <iostream>
+using namespace std;
+
+const int BOARD_SIZE = 6;
+const int NUM_PIECES = 6;
+
+void movePiece(char board[BOARD_SIZE][BOARD_SIZE], int fromRow, int fromCol, int toRow, int toCol) {
+    // Перевіряємо, що ячійка, з якого ходять шашки, не порожній
+    if (board[fromRow][fromCol] == ' ') {
+       system("cls");
+        cout << "Вiдсутня шашка!" << endl;
+        return;
+    }
+    // Перевіряємо, що хід допустимо
+    if (((abs(toRow - fromRow) == 1 && abs(toCol - fromCol) == 1) ||
+         (abs(toRow - fromRow) == 1 && abs(toCol - fromCol) == 0) ||
+         (abs(toRow - fromRow) == 0 && abs(toCol - fromCol) == 1)) ||
+         (abs(toRow - fromRow) == 0 && abs(toCol - fromCol) == 2) &&
+        board[toRow][toCol] == ' ' && // Перевіряємо, що ячійка, куди рухаємося, пуста
+        ((board[fromRow][fromCol] == 'O' && toRow > fromRow) ||
+         (board[fromRow][fromCol] == 'X' && toRow < fromRow))) {
+       // Переміщаємо шашку в комірку toRow, toCol
+        board[toRow][toCol] = board[fromRow][fromCol];
+        board[fromRow][fromCol] = ' ';
+
+       // Перевіряємо, чи потрапила шашка у потрібний кут
+        if ((board[toRow][toCol] == 'X' && toRow == 0 && toCol == 0) ||
+            (board[toRow][toCol] == 'O' && toRow == BOARD_SIZE - 1 && toCol == BOARD_SIZE - 1)) {
+            // Якщо так, виводимо повідомлення про перемогу відповідного гравця та завершуємо програму
+            cout << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
+            cout << "Вiтаємо, гравець " << board[toRow][toCol] << " перемiг!" << endl;
+            cout << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
+            exit(0);
+        }
+    } else if (abs(toRow - fromRow) == 2 && abs(toCol - fromCol) == 2 &&
+               board[toRow][toCol] == ' ' &&
+               ((board[fromRow][fromCol] == 'O' && toRow > fromRow && board[(fromRow+toRow)/2][(fromCol+toCol)/2] == 'X') ||
+                (board[fromRow][fromCol] == 'X' && toRow < fromRow && board[(fromRow+toRow)/2][(fromCol+toCol)/2] == 'O'))) {
+        // Перевіряємо, що між вихідною та кінцевою позиціями є шашка супротивника
+         // Якщо так, то видаляємо її та переміщаємо шашку на кінцеву позицію
+        board[toRow][toCol] = board[fromRow][fromCol];
+        board[fromRow][fromCol] = ' ';
+        board[(fromRow+toRow)/2][(fromCol+toCol)/2] = ' ';
+    } else {
+         system("cls"); cout << "Неправильний хiд!" << endl;
+        return;
+    }
+}
+void drawBoard(char board[BOARD_SIZE][BOARD_SIZE]) {
+   cout << endl << "  || 0 | 1 | 2 | 3 | 4 | 5 |" << endl;
+    cout << "---------------------------+" << endl;
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        cout << row << " |";
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            cout << "| " << board[row][col] << " ";
+        }
+        cout << "|" << endl;
+        if (row < BOARD_SIZE - 1) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                cout << "----";
+            }
+            cout << "---+" << endl;
+        }
+    }
+}
+void promptMove(char board[BOARD_SIZE][BOARD_SIZE]) {
+    int fromRow, fromCol, toRow, toCol;
+    char player;
+
+    if (NUM_PIECES % 2 == 0) {
+        player = 'X';
+    } else {
+        player = 'O';
+    }
+      system("cls");
+    drawBoard(board); // отрисовка доски перед первым ходом
+
+    cout << "Хiд гравця " << player << endl;
+    cout << "Введiть рядок та стовпець шашки, яку ви бажаєте перемiстити: ";
+    cin >> fromRow >> fromCol;
+    cout << "Введiть рядок та стовпець, куди ви хочете перемiстити шашку: ";
+    cin >> toRow >> toCol;
+    movePiece(board, fromRow, fromCol, toRow, toCol);
+    drawBoard(board); // отрисовка доски после первого хода
+
+    if (player == 'X') {
+        player = 'O';
+    } else {
+        player = 'X';
+    }
+
+    cout << "Хiд гравця " << player << endl;
+    cout << "Введiть рядок та стовпець шашки, яку ви бажаєте перемiстити: ";
+    cin >> fromRow >> fromCol;
+    cout << "Введiть рядок та стовпець, куди ви хочете перемiстити шашку: ";
+    cin >> toRow >> toCol;
+    movePiece(board, fromRow, fromCol, toRow, toCol);
+    drawBoard(board); // отрисовка доски после второго хода
+}
+void displayRules() {
+    cout << endl << "================================= Правила гри Куточки ==========================================" << endl;
+    cout << "|| Куточки - це настiльна гра для двох гравцiв, в якiй використовуються шашки та iгрове поле  ||" << endl;
+    cout << "|| Кожен гравець розпочинає гру з 6 шашками, якi розташовуються у своїх куточках.             ||"<< endl;
+    cout << "|| Цiль гри - зайти своєю шашкою у куток свого суперника.                                     ||" << endl;
+    cout << "|| Ходи шашками, можливо робити вертикально, горизонтально, та дiагонально.                   ||" << endl;
+    cout << "|| Натиснiть Enter, щоб повернутися у головне меню...                                         ||" << endl;
+    cout << "================================================================================================" << endl;
+    cin.ignore();
+}
+
+int main() {
+    setlocale(LC_ALL, "");
+     system("cls");
+    // Додаємо головний екран
+    cout << "=======================================" << endl;
+    cout << "||  Ласкаво просимо до гри Куточки!  ||" << endl;
+    cout << "|| 1 - Розпочати гру                 || "<< endl;
+    cout << "|| 2 - Вiдкрити правила              ||   " << endl;
+    cout << "=======================================" << endl;
+    // Запитуємо вибір користувача
+    int choice;
+    do {
+        cout << "Введiть 1 або 2: ";
+        cin >> choice;
+        cin.ignore();
+    } while (choice != 1 && choice != 2);
+
+    // Якщо вибрано розпочати гру, то продовжуємо код
+    if (choice == 1) {
+        // Створюємо дошку та ініціалізуємо її порожніми клітинами
+        char board[BOARD_SIZE][BOARD_SIZE];
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                board[row][col] = ' ';
+            }
+        }
+
+        // Додаємо шашки в лівий верхній кут і правий нижній
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                board[row][col] = 'O';
+                board[BOARD_SIZE - 1 - row][BOARD_SIZE - 1 - col] = 'X';
+            }
+        }
+
+        // Виводимо дошку на екран
+
+        cout << endl << "  || 0 | 1 | 2 | 3 | 4 | 5 |" << endl;
+        cout << "---------------------------+" << endl;
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            cout << row << " |";
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                cout << "| " << board[row][col] << " ";
+            }
+            cout << "|" << endl;
+            if (row < BOARD_SIZE - 1) {
+                for (int col = 0; col < BOARD_SIZE; col++) {
+                    cout << "----";
+                }
+                cout << "---+" << endl;
+            }
+        }
+
+
+    // Запитуємо ходи користувача
+while (true) {
+    promptMove(board);
+
+    // Виводимо дошку на екран після кожного ходу
+
+    cout << endl << "  || 0 | 1 | 2 | 3 | 4 | 5 |" << endl;
+    cout << "---------------------------+" << endl;
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        cout << row << " |";
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            cout << "| " << board[row][col] << " ";
+        }
+        cout << "|" << endl;
+        if (row < BOARD_SIZE - 1) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                cout << "----";
+            }
+            cout << "---+" << endl;
+        }
+    }
+}
+}else if (choice == 2) { // Вибір показати правила
+    system("cls");
+    displayRules();
+    main(); // Повертаємося в головне меню після відображення правил
+return 0;
+    }
+}
